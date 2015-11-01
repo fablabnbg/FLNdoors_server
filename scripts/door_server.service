@@ -1,0 +1,12 @@
+[Unit]
+Description=HTTP server providing access to the door access database
+After=network.target auditd.service
+
+[Service]
+ExecStart=/root/door_management/server.py
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
