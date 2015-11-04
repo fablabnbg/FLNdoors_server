@@ -1,4 +1,5 @@
 import json
+import database as db
 
 class auth_file:
 	def __init__(self,filename):
@@ -16,8 +17,20 @@ class auth_file:
 					pass
 			return None
 
+class auth_db:
+	def __init__(self,connection_string):
+		self.session=db.create_session(connection_string)
+
+	def __call__(self,uid):
+		uid=uid.replace('_','').replace.(' ','').upper()
+		entry=self.session.query(db.Card).filter(db.Card.uid==uid).first()
+		if not entry:
+			return None
+		return {'uid':entry.uid,'access_level':entry.access_level,'name':entry.name,'pin':entry.pin}
+
+
 def App_auth(environ,start_response):
-	auth=auth_file('door_access')
+	auth=auth_file('/root/door_management/door_access')
 	uid=environ['PATH_INFO'][1:]
 	res=auth(uid)
 	if not res:
