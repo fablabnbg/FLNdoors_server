@@ -5,12 +5,22 @@ from sqlalchemy.orm import sessionmaker
 
 Base=declarative_base()
 
+class Member(Base):
+	__tablename__='members'
+	item_id=Column(Integer,primary_key=True)
+	app_item_id=Column(Integer)
+	title=Column(String(32))
+
 class Card(Base):
 	__tablename__='cards'
 	uid=Column(String(14),primary_key=True)
 	pin=Column(String(4))
 	access_level=Column(Integer)
-	name=Column(String(32))
+	owner=Column(String(32))
+	member=Column(Integer,ForeignKey('members.item_id'))
+	item_id=Column(Integer)
+	app_item_id=Column(Integer)
+
 
 def create_tables(dbengine):
 	__engine=create_engine(dbengine)
