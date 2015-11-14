@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from pypodio2 import api
 from database import Member, Card
 from functools import reduce
