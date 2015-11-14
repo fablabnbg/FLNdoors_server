@@ -41,7 +41,7 @@ def get_cards_from_podio(client_id,client_secret,app_id,app_key):
 				access_level=i['access_level'],
 				pin='0000',
 				owner=i['owner'],
-				member=i['member'],
+				member_o=i['member'],
 				item_id=i['item_id'],
 				app_item_id=i['app_item_id'],
 				expiry_date=i['expiry_date'] if 'expiry_date' in i else datetime.date(year=2100,month=12,day=31)
