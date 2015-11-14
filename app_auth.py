@@ -1,5 +1,6 @@
 import json
 import database as db
+import config
 
 class auth_file:
 	def __init__(self,filename):
@@ -22,15 +23,16 @@ class auth_db:
 		self.session=db.create_session(connection_string)
 
 	def __call__(self,uid):
-		uid=uid.replace('_','').replace.(' ','').upper()
+		uid=uid.replace('_','').replace(' ','').upper()
 		entry=self.session.query(db.Card).filter(db.Card.uid==uid).first()
 		if not entry:
 			return None
-		return {'uid':entry.uid,'access_level':entry.access_level,'name':entry.name,'pin':entry.pin}
+		return {'uid':entry.uid,'access_level':entry.access_level,'name':entry.owner,'pin':entry.pin}
 
 
 def App_auth(environ,start_response):
 	auth=auth_file('/root/door_management/door_access')
+	auth=auth_db(config.db)
 	uid=environ['PATH_INFO'][1:]
 	res=auth(uid)
 	if not res:
