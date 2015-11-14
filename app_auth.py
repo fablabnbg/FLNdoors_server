@@ -1,6 +1,7 @@
 import json
 import database as db
 import config
+import datetime
 
 class auth_file:
 	def __init__(self,filename):
@@ -27,11 +28,12 @@ class auth_db:
 		entry=self.session.query(db.Card).filter(db.Card.uid==uid).first()
 		if not entry:
 			return None
+		if entry.expiry_date<datetime.date.today():
+			entry.access_level=0
 		return {'uid':entry.uid,'access_level':entry.access_level,'name':entry.owner,'pin':entry.pin}
 
 
 def App_auth(environ,start_response):
-	auth=auth_file('/root/door_management/door_access')
 	auth=auth_db(config.db)
 	uid=environ['PATH_INFO'][1:]
 	res=auth(uid)
