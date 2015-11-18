@@ -93,10 +93,10 @@ def create_diff(session,client_id,client_secret,app_id,app_key):
 
 def interactive_merge(session,d):
 	for k in d:
+		print('')
 		print('podio: {}'.format(d[k][0]))
 		print('local: {}'.format(d[k][1]))
 		r=input('write from podio to db? (y/N)')
-		print('')
 		if r.upper()=='Y':
 			print('changing db')
 			if not d[k][0]: # Card is not listed in podio, remove from db
