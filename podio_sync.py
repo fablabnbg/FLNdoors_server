@@ -12,6 +12,7 @@ def get_cards_from_podio(client_id,client_secret,app_id,app_key):
 	count=res['total']-1
 	items=res['items']
 	offset=1
+	errors=[]
 	while count>0:
 		res=p.Item.filter(app_id,{'limit':50,'offset':offset})
 		items.extend(res['items'])
@@ -46,8 +47,11 @@ def get_cards_from_podio(client_id,client_secret,app_id,app_key):
 				app_item_id=i['app_item_id'],
 				expiry_date=i['expiry_date'] if 'expiry_date' in i else datetime.date(year=2100,month=12,day=31)
 				)
+		if c.uid in data:
+			errors.append('ERROR: Double uid in Podio: "{}".\n{}\n{}'.format(c.uid,str(c),str(data[c.uid])))
+			continue
 		data[c.uid]=c
-	return data
+	return data,errors
 
 def get_cards_from_db(session):
 	items=session.query(Card).all()
@@ -84,15 +88,15 @@ def remove_same(d):
 	return res
 
 def create_diff(session,client_id,client_secret,app_id,app_key):
-	return remove_same(merge_dicts(get_cards_from_podio(client_id,client_secret,app_id,app_key),get_cards_from_db(session)))
+	podio,errors=get_cards_from_podio(client_id,client_secret,app_id,app_key)
+	return remove_same(merge_dicts(podio,get_cards_from_db(session))),errors
 
 def interactive_merge(session,d):
 	for k in d:
-		print('podio:')
-		print(d[k][0])
-		print('db:')
-		print(d[k][1])
+		print('podio: {}'.format(d[k][0]))
+		print('local: {}'.format(d[k][1]))
 		r=input('write from podio to db? (y/N)')
+		print('')
 		if r.upper()=='Y':
 			print('changing db')
 			if not d[k][0]: # Card is not listed in podio, remove from db
@@ -108,6 +112,12 @@ def interactive_merge(session,d):
 
 if __name__=='__main__':
 	from database import create_session
+	import sys
 	s=create_session(config.db)
-	d=create_diff(s,config.podio_client_id,config.podio_client_secret,config.podio_app_id_nfc,config.podio_app_key_nfc)
-	interactive_merge(s,d)
+	d,e=create_diff(s,config.podio_client_id,config.podio_client_secret,config.podio_app_id_nfc,config.podio_app_key_nfc)
+	if e:
+		for x in e:
+			print(x)
+	if not e or '-f' in sys.argv:
+		print('------------------')
+		interactive_merge(s,d)

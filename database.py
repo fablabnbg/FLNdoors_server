@@ -41,7 +41,7 @@ class Card(Base):
 				'owner':self.owner,
 				'member':self.member_o.obj() if self.member_o else self.member.obj() if self.member else None,
 				#'item_id':self.item_id,
-				#'app_item_id':self.app_item_id,
+				'app_item_id':self.app_item_id,
 				'expiry_date':str(self.expiry_date),
 				}
 
