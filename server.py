@@ -4,6 +4,7 @@ from wsgiref.util import shift_path_info
 from app_index import App_index
 from app_auth import App_auth
 from app_status import App_status
+from app_request import App_request
 
 import config
 
@@ -11,6 +12,7 @@ apps={
 	None:App_index, #default
 	"auth":App_auth,
 	"status":App_status,
+	"request":App_request,
 	}
 
 def select_app(environ,start_response):

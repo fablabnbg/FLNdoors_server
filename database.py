@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, Date, func
+from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, Date, func, DateTime, Enum
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, relationship
@@ -47,6 +47,28 @@ class Card(Base):
 
 	def __str__(self):
 		return str(self.obj())
+
+class Door(Base):
+	__tablename__='doors'
+	name=Column(String(16),primary_key=True)
+
+class Request_Success(Base):
+	__tablename__='requests_success'
+	id=Column(Integer,primary_key=True)
+	date=Column(DateTime, default=func.now())
+	card_uid=Column(String(14))
+	req_type=Column(Enum('open','close'))
+	door_name=Column(String(16),ForeignKey('doors.name'))
+	door=relationship(Door)
+
+class Request_Failure(Base):
+	__tablename__='requests_failure'
+	id=Column(Integer,primary_key=True)
+	date=Column(DateTime, default=func.now())
+	card_uid=Column(String(14))
+	req_type=Column(Enum('open','close'))
+	door_name=Column(String(16),ForeignKey('doors.name'))
+	door=relationship(Door)
 
 def create_tables(dbengine):
 	__engine=create_engine(dbengine)
