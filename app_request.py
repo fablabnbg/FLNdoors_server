@@ -4,6 +4,7 @@ import json
 import sqlalchemy.orm.exc as exc
 from app_status import get_status, send_status
 from datetime import date
+import threading
 
 def bad_req(start_response):
 	start_response("400 Bad Request",[])
@@ -17,7 +18,7 @@ def log_success(session,card_uid,req_type,door):
 		r=db.Request_Success(card_uid=card_uid,req_type=req_type,door_name=door)
 		session.add(r)
 		session.commit()
-		send_status(session)
+		threading.Thread(target=lambda:send_status(session)).start()
 		return True
 
 def log_failure(session,card_uid,req_type,door):
