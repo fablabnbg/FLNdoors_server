@@ -43,7 +43,8 @@ def App_request(environ,start_response):
 	print(card_uid)
 	s=db.create_session(config.db)
 	if req=='close':
-		log_success(s,card_uid,'close',door)
+		if request_body.get('write_log',False):
+			log_success(s,card_uid,'close',door)
 		return ok(start_response,'close')
 
 	if req=='open':
