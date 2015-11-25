@@ -34,7 +34,7 @@ def App_request(environ,start_response):
 		body=environ['wsgi.input'].read(request_length).decode('UTF-8')
 		print(body)
 		request_body = json.loads(body)
-	except ValueError:
+	except ValueError as e:
 		return bad_req(start_response)
 	try:
 		card_uid=request_body['card']
@@ -59,7 +59,7 @@ def App_request(environ,start_response):
 		if card.access_level>=10:
 			log_success(s,card_uid,'open',door)
 			return ok(start_response,'open')
-		if get_status(s)=='open':
+		if get_status(s).req_type=='open':
 			log_success(s,card_uid,'open',door)
 			return ok(start_response,'open')
 		log_failure(s,card_uid,'open',door)
