@@ -5,6 +5,7 @@ from app_index import App_index
 from app_auth import App_auth
 from app_status import App_status
 from app_request import App_request
+from app_alarm import App_alarm
 
 import config
 
@@ -13,6 +14,7 @@ apps={
 	"auth":App_auth,
 	"status":App_status,
 	"request":App_request,
+	"alarm":App_alarm,
 	}
 
 def select_app(environ,start_response):

@@ -2,6 +2,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, Date, func,
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, relationship
+from pytz import utc
 
 import json
 
@@ -69,6 +70,17 @@ class Request_Failure(Base):
 	req_type=Column(Enum('open','close'))
 	door_name=Column(String(16),ForeignKey('doors.name'))
 	door=relationship(Door)
+
+class Alarm(Base):
+	__tablename__='alarms'
+	id=Column(Integer,primary_key=True)
+	date=Column(DateTime, default=func.now())
+	type=Column(String(32))
+	door_name=Column(String(16),ForeignKey('doors.name'))
+	door=relationship(Door)
+
+	def __str__(self):
+		return '"{}" from "{}" on "{}"'.format(self.type,self.door.name,utc.localize(self.date))
 
 def create_tables(dbengine):
 	__engine=create_engine(dbengine)

@@ -1,6 +1,7 @@
 import database as db
 import config
 import json
+from sms import sms
 
 def bad_req(start_response):
 	start_response("400 Bad Request",[])
@@ -25,6 +26,10 @@ def App_alarm(environ,start_response):
 		s.commit()
 	except:
 		return bad_req(start_response)
-	print('ALARM: '+str(r))
+
+	m='ALARM: '+str(r)
+	print(m)
+	for recv in config.sms_receivers:
+		sms(config.sms_device,recv,m)
 	start_response("200 OK",[])
 	return([])
