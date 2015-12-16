@@ -6,8 +6,8 @@ from operator import or_
 import datetime
 import config
 
-def get_cards_from_podio(client_id,client_secret,app_id,app_key):
-	p=api.OAuthAppClient(client_id,client_secret,app_id,app_key)
+def get_cards_from_podio(podio_client,app_id):
+	p=podio_client
 	res=p.Item.filter(app_id,{'limit':1,'offset':0})
 	count=res['total']-1
 	items=res['items']
@@ -87,11 +87,11 @@ def remove_same(d):
 			res[k]=d[k]
 	return res
 
-def create_diff(session,client_id,client_secret,app_id,app_key):
-	podio,errors=get_cards_from_podio(client_id,client_secret,app_id,app_key)
+def create_diff(session,podio_client,app_id):
+	podio,errors=get_cards_from_podio(podio_client,app_id)
 	return remove_same(merge_dicts(podio,get_cards_from_db(session))),errors
 
-def interactive_merge(session,d):
+def interactive_merge(session,d,podio_client):
 	for k in d:
 		print('')
 		print('podio: {}'.format(d[k][0]))
@@ -109,15 +109,17 @@ def interactive_merge(session,d):
 					#d[k][0].member=d[k][0].member.item_id
 				session.merge(d[k][0])
 			session.commit()
+			podio_client.Comment.create('item',d[k][0].item_id,{'value':'Das Access Level wurde in der Schließsystemdatenbank aktualisiert.'},silent=False,hook=False)
 
 if __name__=='__main__':
 	from database import create_session
 	import sys
+	podio_client=api.OAuthAppClient(config.podio_client_id,config.podio_client_secret,config.podio_app_id_nfc,config.podio_app_key_nfc)
 	s=create_session(config.db)
-	d,e=create_diff(s,config.podio_client_id,config.podio_client_secret,config.podio_app_id_nfc,config.podio_app_key_nfc)
+	d,e=create_diff(s,podio_client,config.podio_app_id_nfc)
 	if e:
 		for x in e:
 			print(x)
 	if not e or '-f' in sys.argv:
 		print('------------------')
-		interactive_merge(s,d)
+		interactive_merge(s,d,podio_client)
